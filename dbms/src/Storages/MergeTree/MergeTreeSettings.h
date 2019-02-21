@@ -99,6 +99,9 @@ struct MergeTreeSettings
     M(SettingUInt64, replicated_max_parallel_sends, 0)                                                        \
     M(SettingUInt64, replicated_max_parallel_sends_for_table, 0)                                              \
                                                                                                               \
+    /** Limit disk IO for each replicated send */                                                             \
+    M(SettingUInt64, replicated_max_speed_bytes_sends, 0)                                                     \
+                                                                                                              \
     /** If true, Replicated tables replicas on this node will try to acquire leadership. */                   \
     M(SettingBool, replicated_can_become_leader, true)                                                        \
                                                                                                               \

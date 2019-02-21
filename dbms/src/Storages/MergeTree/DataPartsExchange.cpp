@@ -2,6 +2,7 @@
 #include <Storages/IStorage.h>
 #include <Common/CurrentMetrics.h>
 #include <Common/NetException.h>
+#include <Common/Throttler.h>
 #include <Common/typeid_cast.h>
 #include <IO/HTTPCommon.h>
 #include <IO/ReadWriteBufferFromHTTP.h>
@@ -71,6 +72,11 @@ void Service::processQuery(const Poco::Net::HTMLForm & params, ReadBuffer & /*bo
     ++data.current_table_sends;
     SCOPE_EXIT({--data.current_table_sends;});
 
+    std::unique_ptr<Throttler> file_throttler = nullptr;
+    if (data.settings.replicated_max_speed_bytes_sends) {
+         file_throttler = std::make_unique<Throttler>(data.settings.replicated_max_speed_bytes_sends);
+    }
+
     StoragePtr owned_storage = storage.lock();
     if (!owned_storage)
         throw Exception("The table was already dropped", ErrorCodes::UNKNOWN_TABLE);
@@ -108,6 +114,12 @@ void Service::processQuery(const Poco::Net::HTMLForm & params, ReadBuffer & /*bo
             writeBinary(size, out);
 
             ReadBufferFromFile file_in(path);
+            if (file_throttler) {
+                file_in.setProfileCallback([&file_throttler](ReadBufferFromFileBase::ProfileInfo info) {
+                    file_throttler->add(info.bytes_read);
+                });
+            }
+
             HashingWriteBuffer hashing_out(out);
             copyData(file_in, hashing_out, blocker.getCounter());
 
