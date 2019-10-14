@@ -475,8 +475,7 @@ ASTs PredicateExpressionsOptimizer::evaluateAsterisk(ASTSelectQuery * select_que
 
             if (table_expression->table_function)
             {
-                auto query_context = const_cast<Context *>(&context.getQueryContext());
-                storage = query_context->executeTableFunction(table_expression->table_function);
+                storage = context->executeTableFunction(table_expression->table_function);
             }
             else if (table_expression->database_and_table_name)
             {

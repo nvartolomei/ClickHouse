@@ -1252,20 +1252,6 @@ void Context::setMacros(std::unique_ptr<Macros> && macros)
     shared->macros.set(std::move(macros));
 }
 
-const Context & Context::getQueryContext() const
-{
-    if (!query_context)
-        throw Exception("There is no query", ErrorCodes::THERE_IS_NO_QUERY);
-    return *query_context;
-}
-
-Context & Context::getQueryContext()
-{
-    if (!query_context)
-        throw Exception("There is no query", ErrorCodes::THERE_IS_NO_QUERY);
-    return *query_context;
-}
-
 const Context & Context::getSessionContext() const
 {
     if (!session_context)
@@ -1987,7 +1973,7 @@ void Context::setFormatSchemaPath(const String & path)
 
 Context::SampleBlockCache & Context::getSampleBlockCache() const
 {
-    return getQueryContext().sample_block_cache;
+    return sample_block_cache;
 }
 
 

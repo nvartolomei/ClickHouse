@@ -177,9 +177,6 @@ public:
 
     QueryStatusInfo getInfo(bool get_thread_list = false, bool get_profile_events = false, bool get_settings = false) const;
 
-    Context * tryGetQueryContext() { return query_context; }
-    const Context * tryGetQueryContext() const { return query_context; }
-
     /// Copies pointers to in/out streams
     void setQueryStreams(const BlockIO & io);
 

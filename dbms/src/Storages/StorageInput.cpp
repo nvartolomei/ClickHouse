@@ -58,7 +58,7 @@ BlockInputStreams StorageInput::read(const Names & /*column_names*/,
     size_t /*max_block_size*/,
     unsigned /*num_streams*/)
 {
-    Context & query_context = const_cast<Context &>(context).getQueryContext();
+    Context & query_context = context;
     /// It is TCP request if we have callbacks for input().
     if (query_context.getInputBlocksReaderCallback())
     {

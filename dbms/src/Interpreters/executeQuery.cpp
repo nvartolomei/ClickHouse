@@ -190,8 +190,6 @@ static std::tuple<ASTPtr, BlockIO> executeQueryImpl(
     bool allow_processors)
 {
     time_t current_time = time(nullptr);
-
-    context.makeQueryContext();
     CurrentThread::attachQueryContext(context);
 
     const Settings & settings = context.getSettingsRef();

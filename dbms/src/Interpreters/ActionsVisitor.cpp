@@ -362,9 +362,7 @@ void ActionsMatcher::visit(const ASTFunction & node, const ASTPtr & ast, Data & 
         return;
 
     /// Context object that we pass to function should live during query.
-    const Context & function_context = data.context.hasQueryContext()
-        ? data.context.getQueryContext()
-        : data.context;
+    const Context & function_context = data.context;
 
     FunctionBuilderPtr function_builder;
     try

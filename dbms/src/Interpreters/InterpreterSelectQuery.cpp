@@ -275,7 +275,7 @@ InterpreterSelectQuery::InterpreterSelectQuery(
         if (is_table_func)
         {
             /// Read from table function.
-            storage = context.getQueryContext().executeTableFunction(table_expression);
+            storage = context.executeTableFunction(table_expression);
         }
         else
         {
@@ -2696,7 +2696,6 @@ void InterpreterSelectQuery::initSettings()
     if (query.settings())
     {
         InterpreterSetQuery(query.settings(), context).executeForCurrentContext();
-        InterpreterSetQuery(query.settings(), context.getQueryContext()).executeForCurrentContext();
     }
 }
 

@@ -249,8 +249,7 @@ NamesAndTypesList getNamesAndTypeListFromTableExpression(const ASTTableExpressio
     else if (table_expression.table_function)
     {
         const auto table_function = table_expression.table_function;
-        auto query_context = const_cast<Context *>(&context.getQueryContext());
-        const auto & function_storage = query_context->executeTableFunction(table_function);
+        const auto & function_storage = context->executeTableFunction(table_function);
         names_and_type_list = function_storage->getSampleBlockNonMaterialized().getNamesAndTypesList();
     }
     else if (table_expression.database_and_table_name)

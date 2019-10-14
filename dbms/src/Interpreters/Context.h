@@ -373,10 +373,6 @@ public:
     /// For methods below you may need to acquire a lock by yourself.
     std::unique_lock<std::recursive_mutex> getLock() const;
 
-    const Context & getQueryContext() const;
-    Context & getQueryContext();
-    bool hasQueryContext() const { return query_context != nullptr; }
-
     const Context & getSessionContext() const;
     Context & getSessionContext();
     bool hasSessionContext() const { return session_context != nullptr; }
@@ -385,10 +381,8 @@ public:
     Context & getGlobalContext();
     bool hasGlobalContext() const { return global_context != nullptr; }
 
-    void setQueryContext(Context & context_) { query_context = &context_; }
     void setSessionContext(Context & context_) { session_context = &context_; }
 
-    void makeQueryContext() { query_context = this; }
     void makeSessionContext() { session_context = this; }
     void makeGlobalContext() { global_context = this; }
 
