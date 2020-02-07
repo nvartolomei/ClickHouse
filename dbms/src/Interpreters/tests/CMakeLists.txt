@@ -61,6 +61,9 @@ add_check(expression_analyzer)
 add_executable (users users.cpp)
 target_link_libraries (users PRIVATE dbms clickhouse_common_config)
 
+add_executable (if_shortcircuit_optimizer if_shortcircuit_optimizer.cpp)
+target_link_libraries (if_shortcircuit_optimizer PRIVATE dbms clickhouse_parsers)
+
 if (OS_LINUX)
     add_executable (internal_iotop internal_iotop.cpp)
     target_link_libraries (internal_iotop PRIVATE dbms)
