@@ -65,6 +65,9 @@ struct QueryState
     bool need_receive_data_for_insert = false;
     /// Temporary tables read
     bool temporary_tables_read = false;
+    /// All data for insert was received
+    bool received_data_block = false;
+    bool received_all_data_blocks = false;
 
     /// Request requires data from client for function input()
     bool need_receive_data_for_input = false;

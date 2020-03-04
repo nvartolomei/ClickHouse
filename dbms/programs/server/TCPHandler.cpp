@@ -47,6 +47,7 @@ namespace ErrorCodes
     extern const int STD_EXCEPTION;
     extern const int SOCKET_TIMEOUT;
     extern const int UNEXPECTED_PACKET_FROM_CLIENT;
+    extern const int INSERT_DATA_EOF;
 }
 
 
@@ -413,7 +414,18 @@ bool TCPHandler::readDataNext(const size_t & poll_interval, const int & receive_
 
     /// If client disconnected.
     if (in->eof())
+    {
+        if (query_context->getSettingsRef().discard_incomplete_insert_data && !state.received_all_data_blocks)
+        {
+            std::stringstream ss;
+            ss << "Incomplete INSERT transaction was partially discarded due ";
+            ss << "to client disconnecting before sending an empty data block.";
+
+            throw Exception(ss.str(), ErrorCodes::INSERT_DATA_EOF);
+        }
+
         return false;
+    }
 
     /// We accept and process data. And if they are over, then we leave.
     if (!receivePacket())
@@ -991,12 +1003,22 @@ bool TCPHandler::receiveData(bool scalar)
             if (state.need_receive_data_for_input)
                 state.block_for_input = block;
             else
+            {
+                state.received_data_block = true;
                 state.io.out->write(block);
+            }
         }
         return true;
     }
     else
+    {
+        /// Empty data block marks end of data blocks for current query.
+        if (state.received_data_block)
+        {
+            state.received_all_data_blocks = true;
+        }
         return false;
+    }
 }
 
 void TCPHandler::receiveUnexpectedData()

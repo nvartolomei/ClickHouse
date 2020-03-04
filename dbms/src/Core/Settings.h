@@ -394,6 +394,7 @@ struct Settings : public SettingsCollection<Settings>
     M(SettingBool, optimize_if_chain_to_miltiif, false, "Replace if(cond1, then1, if(cond2, ...)) chains to multiIf. Currently it's not beneficial for numeric types.", 0) \
     M(SettingBool, allow_experimental_alter_materialized_view_structure, false, "Allow atomic alter on Materialized views. Work in progress.", 0) \
     M(SettingBool, enable_early_constant_folding, true, "Enable query optimization where we analyze function and subqueries results and rewrite query if there're constants there", 0) \
+    M(SettingBool, discard_incomplete_insert_data, false, "Discard incomplete INSERT transactions on client disconnect.", 0) \
     \
     M(SettingBool, partial_revokes, false, "Makes it possible to revoke privileges partially.", 0) \
     \
