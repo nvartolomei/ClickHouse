@@ -145,6 +145,7 @@ namespace Protocol
                 "Cancel",
                 "Ping",
                 "TablesStatusRequest",
+                "Scalar",
                 "KeepAlive",
             };
             return packet <= MAX
