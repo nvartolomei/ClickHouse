@@ -78,6 +78,7 @@ bool ParserShowCreateAccessEntityQuery::parseImpl(Pos & pos, ASTPtr & node, Expe
     bool all = false;
     bool current_quota = false;
     bool current_user = false;
+    bool current_resource_pool = false;
     String short_name;
     std::optional<std::pair<String, String>> database_and_table_name;
 
@@ -152,6 +153,17 @@ bool ParserShowCreateAccessEntityQuery::parseImpl(Pos & pos, ASTPtr & node, Expe
                 current_quota = true;
             break;
         }
+        case EntityType::RESOURCE_POOL:
+        {
+            if (parseIdentifiersOrStringLiterals(pos, expected, names))
+            {
+            }
+            else if (plural)
+                all = true;
+            else
+                current_resource_pool = true;
+            break;
+        }
         case EntityType::MAX:
             throw Exception("Type " + toString(type) + " is not implemented in SHOW CREATE query", ErrorCodes::NOT_IMPLEMENTED);
     }
@@ -163,6 +175,7 @@ bool ParserShowCreateAccessEntityQuery::parseImpl(Pos & pos, ASTPtr & node, Expe
     query->names = std::move(names);
     query->current_quota = current_quota;
     query->current_user = current_user;
+    query->current_resource_pool = current_resource_pool;
     query->row_policy_names = std::move(row_policy_names);
     query->all = all;
     query->short_name = std::move(short_name);

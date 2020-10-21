@@ -36,6 +36,7 @@ struct IAccessEntity
         SETTINGS_PROFILE,
         ROW_POLICY,
         QUOTA,
+        RESOURCE_POOL,
 
         MAX,
     };
@@ -144,6 +145,11 @@ inline const IAccessEntity::TypeInfo & IAccessEntity::TypeInfo::get(Type type_)
         case Type::QUOTA:
         {
             static const auto info = make_info("QUOTA", "QUOTAS", 'Q', ErrorCodes::UNKNOWN_QUOTA);
+            return info;
+        }
+        case Type::RESOURCE_POOL:
+        {
+            static const auto info = make_info("RESOURCE_POOL", "RESOURCE_POOLS", 'L', ErrorCodes::UNKNOWN_QUOTA);
             return info;
         }
         case Type::MAX: break;

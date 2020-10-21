@@ -1,13 +1,13 @@
 #pragma once
 
+#include <mutex>
 #include <Access/AccessRights.h>
 #include <Access/RowPolicy.h>
-#include <Interpreters/ClientInfo.h>
 #include <Core/UUID.h>
+#include <Interpreters/ClientInfo.h>
+#include <boost/container/flat_set.hpp>
 #include <ext/scope_guard.h>
 #include <ext/shared_ptr_helper.h>
-#include <boost/container/flat_set.hpp>
-#include <mutex>
 
 
 namespace Poco { class Logger; }
@@ -21,6 +21,7 @@ class EnabledRoles;
 class EnabledRowPolicies;
 class EnabledQuota;
 class EnabledSettings;
+class EnabledResourcePool;
 struct QuotaUsage;
 struct Settings;
 class SettingsConstraints;
@@ -87,6 +88,8 @@ public:
     /// Returns the settings' constraints.
     /// The function returns nullptr if there are no constraints.
     std::shared_ptr<const SettingsConstraints> getSettingsConstraints() const;
+
+    std::shared_ptr<const EnabledResourcePool> getResourcePool() const;
 
     /// Returns the current access rights.
     std::shared_ptr<const AccessRights> getAccess() const;
@@ -205,6 +208,7 @@ private:
     mutable std::shared_ptr<const EnabledRowPolicies> enabled_row_policies;
     mutable std::shared_ptr<const EnabledQuota> enabled_quota;
     mutable std::shared_ptr<const EnabledSettings> enabled_settings;
+    mutable std::shared_ptr<const EnabledResourcePool> enabled_resource_pool;
     mutable std::shared_ptr<const AccessRights> access_without_readonly;
     mutable std::shared_ptr<const AccessRights> access_with_allow_ddl;
     mutable std::shared_ptr<const AccessRights> access_with_allow_introspection;

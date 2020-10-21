@@ -25,7 +25,7 @@ namespace
 
 String ASTShowCreateAccessEntityQuery::getKeyword() const
 {
-    size_t total_count = (names.size()) + (row_policy_names ? row_policy_names->size() : 0) + current_user + current_quota;
+    size_t total_count = (names.size()) + (row_policy_names ? row_policy_names->size() : 0) + current_user + current_quota + current_resource_pool;
     bool multiple = (total_count != 1) || all || !short_name.empty() || database_and_table_name;
     const auto & type_info = EntityTypeInfo::get(type);
     return multiple ? type_info.plural_name : type_info.name;

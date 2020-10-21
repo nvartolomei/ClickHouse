@@ -54,6 +54,7 @@ using UserPtr = std::shared_ptr<const User>;
 struct EnabledRolesInfo;
 class EnabledRowPolicies;
 class EnabledQuota;
+class EnabledResourcePool;
 struct QuotaUsage;
 class AccessFlags;
 struct AccessRightsElement;
@@ -303,6 +304,8 @@ public:
 
     std::shared_ptr<const EnabledQuota> getQuota() const;
     std::optional<QuotaUsage> getQuotaUsage() const;
+
+    std::shared_ptr<const EnabledResourcePool> getResourcePool() const;
 
     /// We have to copy external tables inside executeQuery() to track limits. Therefore, set callback for it. Must set once.
     void setExternalTablesInitializer(ExternalTablesInitializer && initializer);

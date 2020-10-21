@@ -364,6 +364,7 @@ AccessRightsElements InterpreterShowCreateAccessEntityQuery::getRequiredAccess()
         case EntityType::SETTINGS_PROFILE: res.emplace_back(AccessType::SHOW_SETTINGS_PROFILES); return res;
         case EntityType::ROW_POLICY: res.emplace_back(AccessType::SHOW_ROW_POLICIES); return res;
         case EntityType::QUOTA: res.emplace_back(AccessType::SHOW_QUOTAS); return res;
+        case EntityType::RESOURCE_POOL: res.emplace_back(AccessType::SHOW_RESOURCE_POOLS); return res;
         case EntityType::MAX: break;
     }
     throw Exception(toString(show_query.type) + ": type is not supported by SHOW CREATE query", ErrorCodes::NOT_IMPLEMENTED);

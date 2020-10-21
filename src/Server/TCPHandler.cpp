@@ -27,6 +27,7 @@
 #include <DataTypes/DataTypeLowCardinality.h>
 #include <Compression/CompressionFactory.h>
 #include <common/logger_useful.h>
+#include <Access/EnabledResourcePool.h>
 
 #include <Processors/Executors/PullingAsyncPipelineExecutor.h>
 
@@ -179,6 +180,10 @@ void TCPHandler::runImpl()
                 continue;
 
             query_scope.emplace(*query_context);
+
+            /// Increment query concurrency in the pool.
+            /// Decremented automatically when it goes out of scope.
+            auto res_pool_query_h = CurrentThread::getGroup()->resource_pool->getQueryHandle();
 
             send_exception_with_stack_trace = query_context->getSettingsRef().calculate_text_stack_trace;
 

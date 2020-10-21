@@ -3,6 +3,7 @@
 #include <Access/RowPolicy.h>
 #include <Access/User.h>
 #include <Access/SettingsProfile.h>
+#include <Access/ResourcePool.h>
 #include <Dictionaries/IDictionary.h>
 #include <Common/Config/ConfigReloader.h>
 #include <Common/StringUtils/StringUtils.h>
@@ -438,6 +439,47 @@ namespace
 
         return profiles;
     }
+
+    std::shared_ptr<ResourcePool> parseResourcePool(
+        const Poco::Util::AbstractConfiguration & config,
+        const String & pool_name,
+        const std::vector<UUID> & user_ids)
+    {
+        auto pool = std::make_shared<ResourcePool>();
+        pool->setName(pool_name);
+        pool->to_roles.add(user_ids);
+
+        String pool_config = "resource_pools." + pool_name;
+        pool->max_query_concurrency = config.getUInt(pool_config + ".max_query_concurrency", 0);
+
+        return pool;
+    }
+
+    std::vector<AccessEntityPtr> parseResourcePools(
+        const Poco::Util::AbstractConfiguration & config)
+    {
+        Poco::Util::AbstractConfiguration::Keys user_names;
+        config.keys("users", user_names);
+        std::unordered_map<String, std::vector<UUID>> pool_to_user_ids;
+        for (const auto & user_name : user_names)
+        {
+            if (config.has("users." + user_name + ".resource_pool"))
+                pool_to_user_ids[config.getString("users." + user_name + ".resource_pool")].push_back(generateID(EntityType::USER, user_name));
+        }
+
+        std::vector<AccessEntityPtr> pools;
+        Poco::Util::AbstractConfiguration::Keys pool_names;
+        config.keys("resource_pools", pool_names);
+        pools.reserve(pool_names.size());
+        for (const auto & pool_name : pool_names)
+        {
+            auto it = pool_to_user_ids.find(pool_name);
+            const std::vector<UUID> & pool_users = (it != pool_to_user_ids.end()) ? std::move(it->second) : std::vector<UUID>{};
+            pools.push_back(parseResourcePool(config, pool_name, pool_users));
+        }
+
+        return pools;
+    }
 }
 
 
@@ -496,6 +538,8 @@ void UsersConfigAccessStorage::parseFromConfig(const Poco::Util::AbstractConfigu
     for (const auto & entity : parseRowPolicies(config))
         all_entities.emplace_back(generateID(*entity), entity);
     for (const auto & entity : parseSettingsProfiles(config, check_setting_name_function))
+        all_entities.emplace_back(generateID(*entity), entity);
+    for (const auto & entity : parseResourcePools(config))
         all_entities.emplace_back(generateID(*entity), entity);
     memory_storage.setAll(all_entities);
 }

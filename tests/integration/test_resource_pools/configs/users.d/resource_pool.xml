@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<yandex>
+    <resource_pools>
+        <my_pool_1>
+            <max_query_concurrency>10</max_query_concurrency>
+        </my_pool_1>
+        <my_pool_2>
+            <max_query_concurrency>42</max_query_concurrency>
+        </my_pool_2>
+        <my_pool_3>
+            <!-- empty -->
+        </my_pool_3>
+    </resource_pools>
+</yandex>

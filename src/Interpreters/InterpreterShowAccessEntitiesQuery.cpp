@@ -108,6 +108,19 @@ String InterpreterShowAccessEntitiesQuery::getRewrittenQuery() const
             break;
         }
 
+        case EntityType::RESOURCE_POOL:
+        {
+            if (query.current_resource_pool) {
+                origin = "current_resource_pool";
+            }
+            else
+            {
+                origin = "resource_pools";
+                expr = "name";
+            }
+            break;
+        }
+
         case EntityType::MAX:
             break;
     }

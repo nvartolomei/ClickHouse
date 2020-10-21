@@ -3,6 +3,7 @@
 #include <Access/EnabledRoles.h>
 #include <Access/EnabledRowPolicies.h>
 #include <Access/EnabledQuota.h>
+#include <Access/EnabledResourcePool.h>
 #include <Access/QuotaUsage.h>
 #include <Access/User.h>
 #include <Access/EnabledRolesInfo.h>
@@ -214,6 +215,7 @@ void ContextAccess::setUser(const UserPtr & user_) const
         enabled_row_policies = nullptr;
         enabled_quota = nullptr;
         enabled_settings = nullptr;
+        enabled_resource_pool = nullptr;
         return;
     }
 
@@ -261,6 +263,7 @@ void ContextAccess::setRolesInfo(const std::shared_ptr<const EnabledRolesInfo> &
     enabled_row_policies = manager->getEnabledRowPolicies(*params.user_id, roles_info->enabled_roles);
     enabled_quota = manager->getEnabledQuota(*params.user_id, user_name, roles_info->enabled_roles, params.address, params.quota_key);
     enabled_settings = manager->getEnabledSettings(*params.user_id, user->settings, roles_info->enabled_roles, roles_info->settings_from_enabled_roles);
+    enabled_resource_pool = manager->getEnabledResourcePool(*params.user_id, user_name, roles_info->enabled_roles);
     calculateAccessRights();
 }
 
@@ -329,6 +332,13 @@ std::optional<QuotaUsage> ContextAccess::getQuotaUsage() const
 {
     std::lock_guard lock{mutex};
     return enabled_quota ? enabled_quota->getUsage() : std::optional<QuotaUsage>{};
+}
+
+std::shared_ptr<const EnabledResourcePool> ContextAccess::getResourcePool() const
+{
+    std::lock_guard lock{mutex};
+    assert(enabled_resource_pool);
+    return enabled_resource_pool;
 }
 
 

@@ -45,6 +45,8 @@ void ThreadStatus::attachQueryContext(Context & query_context_)
         thread_group->query_context = query_context;
         if (!thread_group->global_context)
             thread_group->global_context = global_context;
+
+        thread_group->resource_pool = resource_pool;
     }
 
     initQueryProfiler();
@@ -402,6 +404,14 @@ void CurrentThread::attachQueryContext(Context & query_context)
     current_thread->attachQueryContext(query_context);
 }
 
+void CurrentThread::assignToResourcePool(Context & query_context)
+{
+    if (unlikely(!current_thread))
+        return;
+
+    current_thread->resource_pool = query_context.getResourcePool();
+}
+
 void CurrentThread::finalizePerformanceCounters()
 {
     if (unlikely(!current_thread))
@@ -420,6 +430,7 @@ void CurrentThread::detachQueryIfNotDetached()
 {
     if (unlikely(!current_thread))
         return;
+
     current_thread->detachQuery(true);
 }
 
@@ -427,6 +438,7 @@ void CurrentThread::detachQueryIfNotDetached()
 CurrentThread::QueryScope::QueryScope(Context & query_context)
 {
     CurrentThread::initializeQuery();
+    CurrentThread::assignToResourcePool(query_context);
     CurrentThread::attachQueryContext(query_context);
 }
 

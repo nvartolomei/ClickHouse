@@ -23,6 +23,7 @@ public:
     bool all = false;
     bool current_quota = false;
     bool current_roles = false;
+    bool current_resource_pool = false;
     bool enabled_roles = false;
 
     String short_name;

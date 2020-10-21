@@ -1,0 +1,10 @@
+<yandex>
+    <users>
+        <default>
+        </default>
+        <user_1>
+            <no_password />
+            <resource_pool>my_pool_1</resource_pool>
+        </user_1>
+    </users>
+</yandex>

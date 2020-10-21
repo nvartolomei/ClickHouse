@@ -1,21 +1,23 @@
-#include <Access/AccessControlManager.h>
-#include <Access/MultipleAccessStorage.h>
-#include <Access/MemoryAccessStorage.h>
-#include <Access/UsersConfigAccessStorage.h>
-#include <Access/DiskAccessStorage.h>
-#include <Access/ContextAccess.h>
-#include <Access/RoleCache.h>
-#include <Access/RowPolicyCache.h>
-#include <Access/QuotaCache.h>
-#include <Access/QuotaUsage.h>
-#include <Access/SettingsProfilesCache.h>
-#include <Access/ExternalAuthenticators.h>
-#include <Core/Settings.h>
-#include <common/find_symbols.h>
-#include <Poco/ExpireCache.h>
-#include <boost/algorithm/string/join.hpp>
 #include <filesystem>
 #include <mutex>
+#include <Access/AccessControlManager.h>
+#include <Access/ContextAccess.h>
+#include <Access/DiskAccessStorage.h>
+#include <Access/EnabledResourcePool.h>
+#include <Access/ExternalAuthenticators.h>
+#include <Access/MemoryAccessStorage.h>
+#include <Access/MultipleAccessStorage.h>
+#include <Access/QuotaCache.h>
+#include <Access/QuotaUsage.h>
+#include <Access/RoleCache.h>
+#include <Access/RowPolicyCache.h>
+#include <Access/SettingsProfilesCache.h>
+#include <Access/UsersConfigAccessStorage.h>
+#include <Core/Settings.h>
+#include <boost/algorithm/string/join.hpp>
+#include <Poco/ExpireCache.h>
+#include <common/find_symbols.h>
+#include "ResourcePool.h"
 
 
 namespace DB
@@ -448,6 +450,33 @@ std::shared_ptr<const EnabledSettings> AccessControlManager::getEnabledSettings(
 std::shared_ptr<const SettingsChanges> AccessControlManager::getProfileSettings(const String & profile_name) const
 {
     return settings_profiles_cache->getProfileSettings(profile_name);
+}
+
+std::shared_ptr<const EnabledResourcePool> AccessControlManager::getEnabledResourcePool(
+    const UUID & user_id, const String & user_name, const boost::container::flat_set<UUID> & enabled_roles) const
+{
+    UNUSED(user_name);
+
+    for (auto pool_id : findAll<ResourcePool>())
+    {
+        auto pool = read<ResourcePool>(pool_id);
+
+        if (pool->to_roles.match(user_id, enabled_roles))
+        {
+            auto p = std::make_shared<EnabledResourcePool>();
+
+            p->name = pool->getName();
+            p->max_query_concurrency = pool->max_query_concurrency;
+            p->query_concurrency.store(0);
+
+            return p;
+        }
+    }
+
+    auto p = std::make_shared<EnabledResourcePool>();
+    p->name = "(global resource pool)";
+
+    return p;
 }
 
 const ExternalAuthenticators & AccessControlManager::getExternalAuthenticators() const

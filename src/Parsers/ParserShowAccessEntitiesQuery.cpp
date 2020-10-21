@@ -48,6 +48,7 @@ bool ParserShowAccessEntitiesQuery::parseImpl(Pos & pos, ASTPtr & node, Expected
     bool all = false;
     bool current_quota = false;
     bool current_roles = false;
+    bool current_resource_pool = false;
     bool enabled_roles = false;
 
     if (parseEntityType(pos, expected, type))
@@ -68,6 +69,11 @@ bool ParserShowAccessEntitiesQuery::parseImpl(Pos & pos, ASTPtr & node, Expected
     {
         type = EntityType::QUOTA;
         current_quota = true;
+    }
+    else if (ParserKeyword{"CURRENT RESOURCE POOL"}.ignore(pos, expected))
+    {
+        type = EntityType::RESOURCE_POOL;
+        current_resource_pool = true;
     }
     else
         return false;
@@ -99,6 +105,7 @@ bool ParserShowAccessEntitiesQuery::parseImpl(Pos & pos, ASTPtr & node, Expected
     query->all = all;
     query->current_quota = current_quota;
     query->current_roles = current_roles;
+    query->current_resource_pool = current_resource_pool;
     query->enabled_roles = enabled_roles;
     query->short_name = std::move(short_name);
     query->database_and_table_name = std::move(database_and_table_name);

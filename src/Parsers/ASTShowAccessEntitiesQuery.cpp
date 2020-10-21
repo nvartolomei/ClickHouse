@@ -13,6 +13,8 @@ String ASTShowAccessEntitiesQuery::getKeyword() const
         return "CURRENT QUOTA";
     if (current_roles)
         return "CURRENT ROLES";
+    if (current_resource_pool)
+        return "CURRENT RESOURCE POOL";
     if (enabled_roles)
         return "ENABLED ROLES";
     return EntityTypeInfo::get(type).plural_name;

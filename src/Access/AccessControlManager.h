@@ -1,3 +1,4 @@
+
 #pragma once
 
 #include <Access/MultipleAccessStorage.h>
@@ -142,6 +143,11 @@ public:
                                                               const SettingsProfileElements & settings_from_enabled_roles) const;
 
     std::shared_ptr<const SettingsChanges> getProfileSettings(const String & profile_name) const;
+
+    std::shared_ptr<const EnabledResourcePool> getEnabledResourcePool(
+        const UUID & user_id,
+        const String & user_name,
+        const boost::container::flat_set<UUID> & enabled_roles) const;
 
     const ExternalAuthenticators & getExternalAuthenticators() const;
 

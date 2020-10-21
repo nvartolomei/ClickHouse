@@ -61,6 +61,7 @@ AccessRightsElements InterpreterDropAccessEntityQuery::getRequiredAccess() const
         case EntityType::SETTINGS_PROFILE: res.emplace_back(AccessType::DROP_SETTINGS_PROFILE); return res;
         case EntityType::ROW_POLICY: res.emplace_back(AccessType::DROP_ROW_POLICY); return res;
         case EntityType::QUOTA: res.emplace_back(AccessType::DROP_QUOTA); return res;
+        case EntityType::RESOURCE_POOL: res.emplace_back(AccessType::DROP_RESOURCE_POOL); return res;
         case EntityType::MAX: break;
     }
     throw Exception(

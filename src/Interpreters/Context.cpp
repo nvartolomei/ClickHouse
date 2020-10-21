@@ -834,6 +834,10 @@ std::optional<QuotaUsage> Context::getQuotaUsage() const
     return getAccess()->getQuotaUsage();
 }
 
+std::shared_ptr<const EnabledResourcePool> Context::getResourcePool() const
+{
+    return getAccess()->getResourcePool();
+}
 
 void Context::setProfile(const String & profile_name)
 {

@@ -66,6 +66,8 @@ public:
     /// Sets query_context for current thread group
     static void attachQueryContext(Context & query_context);
 
+    static void assignToResourcePool(Context & query_context);
+
     /// You must call one of these methods when create a query child thread:
     /// Add current thread to a group associated with the thread group
     static void attachTo(const ThreadGroupStatusPtr & thread_group);

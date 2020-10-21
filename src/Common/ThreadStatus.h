@@ -28,6 +28,7 @@ namespace DB
 class Context;
 class QueryStatus;
 class ThreadStatus;
+class EnabledResourcePool;
 class QueryProfilerReal;
 class QueryProfilerCpu;
 class QueryThreadLog;
@@ -58,6 +59,8 @@ public:
 
     Context * query_context = nullptr;
     Context * global_context = nullptr;
+    std::shared_ptr<const EnabledResourcePool> resource_pool = nullptr;
+
 
     InternalTextLogsQueueWeakPtr logs_queue_ptr;
     std::function<void()> fatal_error_callback;
@@ -182,6 +185,8 @@ protected:
     Context * global_context = nullptr;
     /// Use it only from current thread
     Context * query_context = nullptr;
+
+    std::shared_ptr<const EnabledResourcePool> resource_pool = nullptr;
 
     String query_id;
 
