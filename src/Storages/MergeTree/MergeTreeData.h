@@ -20,6 +20,7 @@
 #include <Storages/IndicesDescription.h>
 #include <Storages/MergeTree/MergeTreePartsMover.h>
 #include <Storages/MergeTree/MergeTreeWriteAheadLog.h>
+#include <Storages/MergeTree/PinnedPartUUIDs.h>
 #include <Interpreters/PartLog.h>
 #include <Disks/StoragePolicy.h>
 #include <Interpreters/Aggregator.h>
@@ -115,6 +116,8 @@ public:
     using DataPartState = IMergeTreeDataPart::State;
     using DataPartStates = std::initializer_list<DataPartState>;
     using DataPartStateVector = std::vector<DataPartState>;
+
+    using PinnedPartUUIDsPtr = std::shared_ptr<const PinnedPartUUIDs>;
 
     /// Auxiliary structure for index comparison. Keep in mind lifetime of MergeTreePartInfo.
     struct DataPartStateAndInfo
@@ -726,6 +729,8 @@ public:
     /// Mutex for currently_moving_parts
     mutable std::mutex moving_parts_mutex;
 
+    PinnedPartUUIDsPtr getPinnedPartUUIDs() const;
+
     /// Return main processing background job, like merge/mutate/fetch and so on
     virtual std::optional<JobAndPool> getDataProcessingJob() = 0;
     /// Return job to move parts between disks/volumes and so on.
@@ -759,6 +764,10 @@ protected:
     /// Storage settings.
     /// Use get and set to receive readonly versions.
     MultiVersion<MergeTreeSettings> storage_settings;
+
+    /// Used to determine which UUIDs to send to root query executor for deduplication.
+    mutable std::shared_mutex pinned_part_uuids_mutex;
+    PinnedPartUUIDsPtr pinned_part_uuids;
 
     /// Work with data parts
 
@@ -891,6 +900,7 @@ protected:
     virtual void movePartitionToTable(const StoragePtr & dest_table, const ASTPtr & partition, const Context & context) = 0;
 
     /// Makes sense only for replicated tables
+    virtual void movePartitionToShard(const ASTPtr & partition, bool move_part, const String & to, const Context & query_context);
     virtual void fetchPartition(const ASTPtr & partition, const StorageMetadataPtr & metadata_snapshot, const String & from, const Context & query_context);
 
     void writePartLog(

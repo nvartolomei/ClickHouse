@@ -20,6 +20,7 @@
 #include <Storages/MergeTree/DataPartsExchange.h>
 #include <Storages/MergeTree/ReplicatedMergeTreeAddress.h>
 #include <Storages/MergeTree/LeaderElection.h>
+#include <Storages/MergeTree/PartMovesBetweenShardsOrchestrator.h>
 #include <DataTypes/DataTypesNumber.h>
 #include <Interpreters/Cluster.h>
 #include <Interpreters/PartLog.h>
@@ -180,6 +181,8 @@ public:
     using LogEntriesData = std::vector<ReplicatedMergeTreeLogEntryData>;
     void getQueue(LogEntriesData & res, String & replica_name);
 
+    std::vector<PartMovesBetweenShardsOrchestrator::Entry> getPartMovesBetweenShardsEntries();
+
     /// Get replica delay relative to current time.
     time_t getAbsoluteDelay() const;
 
@@ -228,6 +231,7 @@ private:
     friend struct ReplicatedMergeTreeLogEntry;
     friend class ScopedPartitionMergeLock;
     friend class ReplicatedMergeTreeQueue;
+    friend class PartMovesBetweenShardsOrchestrator;
     friend class MergeTreeData;
 
     using MergeStrategyPicker = ReplicatedMergeTreeMergeStrategyPicker;
@@ -279,7 +283,6 @@ private:
 
     DataPartsExchange::Fetcher fetcher;
 
-
     /// When activated, replica is initialized and startup() method could exit
     Poco::Event startup_event;
 
@@ -321,6 +324,8 @@ private:
     /// A thread that processes reconnection to ZooKeeper when the session expires.
     ReplicatedMergeTreeRestartingThread restarting_thread;
 
+    PartMovesBetweenShardsOrchestrator part_moves_between_shards_orchestrator;
+
     /// True if replica was created for existing table with fixed granularity
     bool other_replicas_fixed_granularity = false;
 
@@ -357,6 +362,10 @@ private:
       *  But if there are too many, throw an exception just in case - it's probably a configuration error.
       */
     void checkParts(bool skip_sanity_checks);
+
+    /// Synchronize the list of part uuids which are currently pinned. These should be sent to root query executor
+    /// to be used for deduplication.
+    void syncPinnedPartUUIDs();
 
     /** Check that the part's checksum is the same as the checksum of the same part on some other replica.
       * If no one has such a part, nothing checks.
@@ -424,6 +433,7 @@ private:
     bool executeFetch(LogEntry & entry);
 
     bool executeReplaceRange(const LogEntry & entry);
+    void executeClonePartFromShard(const LogEntry & entry);
 
     /** Updates the queue.
       */
@@ -584,6 +594,7 @@ private:
     PartitionCommandsResultInfo attachPartition(const ASTPtr & partition, const StorageMetadataPtr & metadata_snapshot, bool part, const Context & query_context) override;
     void replacePartitionFrom(const StoragePtr & source_table, const ASTPtr & partition, bool replace, const Context & query_context) override;
     void movePartitionToTable(const StoragePtr & dest_table, const ASTPtr & partition, const Context & query_context) override;
+    void movePartitionToShard(const ASTPtr & partition, bool move_part, const String & to, const Context & query_context) override;
     void fetchPartition(const ASTPtr & partition, const StorageMetadataPtr & metadata_snapshot, const String & from, const Context & query_context) override;
 
     /// Check granularity of already existing replicated table in zookeeper if it exists

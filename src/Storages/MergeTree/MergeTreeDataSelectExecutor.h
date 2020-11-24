@@ -130,6 +130,7 @@ private:
     void selectPartsToReadWithUUIDFilter(
         MergeTreeData::DataPartsVector & parts,
         const std::unordered_set<String> & part_values,
+        MergeTreeData::PinnedPartUUIDsPtr pinned_part_uuids,
         const std::optional<KeyCondition> & minmax_idx_condition,
         std::optional<PartitionPruner> & partition_pruner,
         const PartitionIdToMaxBlock * max_block_numbers_to_read,
